@@ -30,9 +30,48 @@ EOF
 	done
 }
 
+# this is a HACK. if network=test is set on kernel command line
+# then a static bridge is brought up with the first interface
+# bound. this allows for some automated testing to complete.
+# this method *will* be replaced
+initialize_test_configs() {
+    TEST=""
+    read -r cmdline < /proc/cmdline
+    for param in $cmdline ; do
+        case $param in
+            network=*)
+                TEST=${param#network=}
+                ;;
+        esac
+    done
+
+    if [ "$TEST" = "test" ]; then
+        IFACE=`(cd /sys/class/net && /bin/ls -d1 en* | head -n 1)`
+        iface_dir=/etc/network/interfaces.d
+        [ -d $iface_dir ] || mkdir $iface_dir
+
+	    cat > $iface_dir/$IFACE.cfg << EOF
+        iface $IFACE inet manual
+EOF
+
+    	cat > $iface_dir/br0.cfg << EOF
+auto br0
+iface br0 inet static
+  bridge_ports $IFACE
+  address 192.168.1.100
+  netmask 255.255.255.0
+  gateway 192.168.1.1
+  dns-nameservers 8.8.8.8
+
+EOF
+		fi
+}
+
+
 case "$1" in
   start)
 	initialize_configs
+	initialize_test_configs
 
  	log_daemon_msg "Starting network..."
 	/sbin/ifup -a
