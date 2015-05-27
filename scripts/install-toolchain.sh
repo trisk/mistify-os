@@ -67,7 +67,7 @@ install-toolchain () {
 	done
     fi
     tcconfigdefault=$(get_build_default tcconfig $PWD/configs/mistify-tc.config)
-    tcuridefault=$(get_build_default tcuri git@github.com:crosstool-ng/crosstool-ng.git)
+    tcuridefault=$(get_build_default tcuri git@github.com:mistifyio/crosstool-ng.git)
     toolchaindirdefault=$(get_build_default toolchaindir $PWD/toolchain)
     toolchainprefixdefault=$(get_build_default toolchainprefix x86_64-unknown-linux-gnu)
     toolchainversiondefault=$(get_build_default toolchainversion $toolchaincommit)
